@@ -1,0 +1,88 @@
+/**
+ * Trinetix Consultancy — responsive polish
+ * Core breakpoints (1200 / 1100 / 980 / 640) live in main.css.
+ * This file adds fine-grained tweaks for 320–1024 viewports.
+ */
+
+/* Extra-small phones */
+@media (max-width: 374px) {
+  .container {
+    width: min(var(--container), calc(100% - 28px));
+  }
+  .site-header .navbar,
+  .site-header .container.navbar {
+    width: min(var(--container), calc(100% - 20px)) !important;
+    padding: 0 12px !important;
+  }
+  .hero-reference-copy h1 {
+    font-size: clamp(28px, 9vw, 34px) !important;
+  }
+  .section {
+    padding: 56px 0;
+  }
+  .btn {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+}
+
+/* Small phones → large phones */
+@media (min-width: 375px) and (max-width: 639px) {
+  .industry-tabs-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .testimonial-photo {
+    width: 100% !important;
+    max-width: 280px;
+    height: auto !important;
+    aspect-ratio: 300 / 330;
+  }
+}
+
+/* Tablets */
+@media (min-width: 641px) and (max-width: 980px) {
+  .section-head {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .partner-grid {
+    gap: 16px;
+  }
+}
+
+/* Small laptops / large tablets */
+@media (min-width: 981px) and (max-width: 1024px) {
+  .container,
+  .hero-bottom-bar,
+  .industry-tabs-wrap {
+    width: min(var(--container), calc(100% - 48px));
+  }
+  .hero-reference-layout {
+    gap: 40px;
+  }
+}
+
+/* Touch-friendly tap targets when coarse pointer */
+@media (hover: none) and (pointer: coarse) {
+  .nav a,
+  .industry-tab,
+  .person-chip,
+  .pill,
+  .menu-toggle {
+    min-height: 44px;
+  }
+  .circle-arrow,
+  .testimonial-arrow {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .industry-bg,
+  .testimonial-main {
+    transition: none !important;
+  }
+}

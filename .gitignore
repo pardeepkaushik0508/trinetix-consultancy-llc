@@ -1,0 +1,15 @@
+.env
+.env.*
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+*.tar
+*.gz
+_extract/
+_extract.js
+_extract-assets.js
+_build-assets.js
