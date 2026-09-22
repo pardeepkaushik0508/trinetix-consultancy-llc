@@ -472,7 +472,7 @@ function trinetix_seed_knowledge_posts(): void {
 			true
 		);
 		if ( ! is_wp_error( $id ) && ! empty( $cats[ $post[1] ] ) ) {
-			wp_set_post_categories( (int) $id, array( $cats[ $post[1] ] ] );
+			wp_set_post_categories( (int) $id, array( $cats[ $post[1] ] ) );
 		}
 	}
 }
