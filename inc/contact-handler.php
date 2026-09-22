@@ -164,14 +164,13 @@ function trinetix_contact_mark_rate_limit( string $ip ): void {
  */
 function trinetix_contact_submission_columns( array $columns ): array {
 	return array(
-		'cb'         => $columns['cb'] ?? '<input type="checkbox" />',
-		'title'      => __( 'Name', 'trinetix' ),
-		'email'      => __( 'Email', 'trinetix' ),
-		'phone'      => __( 'Phone', 'trinetix' ),
-		'company'    => __( 'Company', 'trinetix' ),
-		'interest'   => __( 'Interest', 'trinetix' ),
-		'mail_sent'  => __( 'Email sent', 'trinetix' ),
-		'date'       => __( 'Date', 'trinetix' ),
+		'cb'        => $columns['cb'] ?? '<input type="checkbox" />',
+		'title'     => __( 'Name', 'trinetix' ),
+		'email'     => __( 'Email', 'trinetix' ),
+		'phone'     => __( 'Phone', 'trinetix' ),
+		'company'   => __( 'Company', 'trinetix' ),
+		'mail_sent' => __( 'Email sent', 'trinetix' ),
+		'date'      => __( 'Date', 'trinetix' ),
 	);
 }
 add_filter( 'manage_contact_submission_posts_columns', 'trinetix_contact_submission_columns' );
@@ -184,10 +183,9 @@ add_filter( 'manage_contact_submission_posts_columns', 'trinetix_contact_submiss
  */
 function trinetix_contact_submission_column_content( string $column, int $post_id ): void {
 	$map = array(
-		'email'    => '_trinetix_contact_email',
-		'phone'    => '_trinetix_contact_phone',
-		'company'  => '_trinetix_contact_company',
-		'interest' => '_trinetix_contact_interest',
+		'email'   => '_trinetix_contact_email',
+		'phone'   => '_trinetix_contact_phone',
+		'company' => '_trinetix_contact_company',
 	);
 
 	if ( isset( $map[ $column ] ) ) {
