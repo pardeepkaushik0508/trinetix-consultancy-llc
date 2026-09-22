@@ -241,6 +241,9 @@ function trinetix_page_section_enabled( int $page_id, string $slug ): bool {
  * @return bool
  */
 function trinetix_show_site_header(): bool {
+	if ( function_exists( 'trinetix_hf_header_globally_enabled' ) && ! trinetix_hf_header_globally_enabled() ) {
+		return false;
+	}
 	if ( ! is_singular( 'page' ) ) {
 		return true;
 	}
@@ -258,6 +261,9 @@ function trinetix_show_site_header(): bool {
  * @return bool
  */
 function trinetix_show_site_footer(): bool {
+	if ( function_exists( 'trinetix_hf_footer_globally_enabled' ) && ! trinetix_hf_footer_globally_enabled() ) {
+		return false;
+	}
 	if ( ! is_singular( 'page' ) ) {
 		return true;
 	}
@@ -481,11 +487,11 @@ add_action( 'add_meta_boxes', 'trinetix_register_page_section_meta_boxes' );
 function trinetix_render_home_help_meta_box(): void {
 	echo '<div style="line-height:1.55;font-size:14px;">';
 	echo '<p><strong>' . esc_html__( 'Template:', 'trinetix' ) . '</strong> ' . esc_html__( 'Page Attributes → Template must be “Home” to see these section boxes.', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Logo:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Customize → Site Identity.', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Header & footer menus:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Menus (global). Use the “Header & Footer” box in the sidebar to show/hide them on this page.', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Logo & header/footer:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Header & Footer.', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Header & footer menus (items):', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Menus. Which menu shows in the header is chosen under Appearance → Header & Footer.', 'trinetix' ) . '</p>';
 	echo '<p><strong>' . esc_html__( 'Banner & section text:', 'trinetix' ) . '</strong> ' . esc_html__( 'Use the numbered boxes below (1 → 4). Turn sections on/off in the sidebar.', 'trinetix' ) . '</p>';
 	echo '<p><strong>' . esc_html__( 'Services / Industries / Case Studies cards:', 'trinetix' ) . '</strong> ' . esc_html__( 'Edit those items in the left admin menu. Shortcodes in the editor are for copying onto other pages.', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Site-wide contact email & footer legal URLs:', 'trinetix' ) . '</strong> ' . esc_html__( 'Trinetix Settings (sidebar).', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Site-wide contact email:', 'trinetix' ) . '</strong> ' . esc_html__( 'Trinetix Settings (sidebar).', 'trinetix' ) . '</p>';
 	echo '</div>';
 }
 
@@ -502,7 +508,7 @@ function trinetix_render_page_layout_meta_box( WP_Post $post ): void {
 	$show_h  = ( '' === $header || null === $header ) ? 1 : (int) $header;
 	$show_f  = ( '' === $footer || null === $footer ) ? 1 : (int) $footer;
 
-	echo '<p class="description" style="margin-top:0;">' . esc_html__( 'Header and footer content stay global (Customizer + Menus + Trinetix Settings). These options only show or hide them on this page.', 'trinetix' ) . '</p>';
+	echo '<p class="description" style="margin-top:0;">' . esc_html__( 'Header and footer content are managed under Appearance → Header & Footer. These options only show or hide them on this page.', 'trinetix' ) . '</p>';
 	echo '<p><label><input type="checkbox" name="_trinetix_show_header" value="1" ' . checked( $show_h, 1, false ) . ' /> ' . esc_html__( 'Show site header', 'trinetix' ) . '</label></p>';
 	echo '<p><label><input type="checkbox" name="_trinetix_show_footer" value="1" ' . checked( $show_f, 1, false ) . ' /> ' . esc_html__( 'Show site footer', 'trinetix' ) . '</label></p>';
 }

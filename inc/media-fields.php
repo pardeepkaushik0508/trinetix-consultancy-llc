@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $hook Current admin page.
  */
 function trinetix_admin_media_enqueue( string $hook ): void {
-	$screens = array( 'post.php', 'post-new.php', 'toplevel_page_trinetix-settings' );
-	if ( ! in_array( $hook, $screens, true ) && false === strpos( $hook, 'trinetix-settings' ) ) {
+	$screens = array( 'post.php', 'post-new.php', 'toplevel_page_trinetix-settings', 'appearance_page_trinetix-header-footer' );
+	if ( ! in_array( $hook, $screens, true ) && false === strpos( $hook, 'trinetix-settings' ) && false === strpos( $hook, 'trinetix-header-footer' ) ) {
 		return;
 	}
 

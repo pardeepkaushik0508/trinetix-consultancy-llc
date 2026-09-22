@@ -24,6 +24,7 @@ $trinetix_includes = array(
 	'/inc/classic-editor.php',
 	'/inc/page-sections.php',
 	'/inc/shortcodes.php',
+	'/inc/header-footer-settings.php',
 	'/inc/admin-settings.php',
 	'/inc/contact-handler.php',
 	'/inc/seo.php',

@@ -76,8 +76,8 @@ trinetix-consultancy-llc/
 
 | What | Where |
 |------|--------|
-| Logo | Appearance → Customize → Site Identity |
-| Header / footer menus | Appearance → Menus |
+| Logo, header menu, CTA button, footer | **Appearance → Header & Footer** |
+| Menu link items | Appearance → Menus |
 | Home banner, intro, section titles, contact section text | **Pages → Home** — set Template to **Home**, then use boxes 1–4 |
 | Show/hide header or footer on a page | Edit page → sidebar **Header & Footer** |
 | Industries / Our Work lists on any page | Shortcodes `[trinetix_industries]` / `[trinetix_work]` in the Classic Editor |

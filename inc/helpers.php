@@ -146,10 +146,22 @@ function trinetix_asset_version( string $relative ): string {
  * @return string
  */
 function trinetix_get_logo_html( string $class = '' ): string {
-	$company = (string) trinetix_get_setting( 'company_name', get_bloginfo( 'name' ) );
-	$tagline = (string) trinetix_get_setting( 'brand_tagline', 'Vision Beyond Technology' );
-	$logo_id = (int) get_theme_mod( 'custom_logo' );
-	$img     = '';
+	$company = function_exists( 'trinetix_get_hf' )
+		? (string) trinetix_get_hf( 'header_heading', trinetix_get_setting( 'company_name', get_bloginfo( 'name' ) ) )
+		: (string) trinetix_get_setting( 'company_name', get_bloginfo( 'name' ) );
+	$tagline = function_exists( 'trinetix_get_hf' )
+		? (string) trinetix_get_hf( 'header_tagline', trinetix_get_setting( 'brand_tagline', 'Vision Beyond Technology' ) )
+		: (string) trinetix_get_setting( 'brand_tagline', 'Vision Beyond Technology' );
+	$show_tagline = function_exists( 'trinetix_get_hf' ) ? (int) trinetix_get_hf( 'header_show_tagline', 1 ) === 1 : true;
+
+	$logo_id = 0;
+	if ( function_exists( 'trinetix_get_hf' ) ) {
+		$logo_id = (int) trinetix_get_hf( 'header_logo_id', 0 );
+	}
+	if ( ! $logo_id ) {
+		$logo_id = (int) get_theme_mod( 'custom_logo' );
+	}
+	$img = '';
 
 	if ( $logo_id ) {
 		$img = wp_get_attachment_image( $logo_id, 'full', false, array( 'alt' => $company, 'class' => $class ) );
@@ -164,12 +176,16 @@ function trinetix_get_logo_html( string $class = '' ): string {
 		);
 	}
 
+	$tagline_html = $show_tagline && $tagline
+		? '<span class="brand-tagline">' . esc_html( $tagline ) . '</span>'
+		: '';
+
 	return sprintf(
-		'<a class="brand" href="%1$s" aria-label="%2$s">%3$s<span class="brand-tagline">%4$s</span></a>',
+		'<a class="brand" href="%1$s" aria-label="%2$s">%3$s%4$s</a>',
 		esc_url( home_url( '/' ) ),
 		esc_attr( $company ),
 		$img,
-		esc_html( $tagline )
+		$tagline_html
 	);
 }
 
@@ -409,22 +425,26 @@ if ( ! class_exists( 'Trinetix_Flat_Nav_Walker' ) ) {
 }
 
 /**
- * Render a footer directory row from a nav menu location.
+ * Render a footer directory row from a nav menu location or explicit menu ID.
  *
  * Top-level items become column headings (h4); children become links.
  * If items are flat (no children), they render as links under a single column.
  *
  * @param string $location Menu location slug.
  * @param string $title    Row title.
+ * @param int    $menu_id  Optional explicit menu term ID (from Header & Footer settings).
  * @return void
  */
-function trinetix_render_footer_row( string $location, string $title ): void {
-	$locations = get_nav_menu_locations();
-	if ( empty( $locations[ $location ] ) ) {
-		return;
+function trinetix_render_footer_row( string $location, string $title, int $menu_id = 0 ): void {
+	if ( $menu_id <= 0 ) {
+		$locations = get_nav_menu_locations();
+		if ( empty( $locations[ $location ] ) ) {
+			return;
+		}
+		$menu_id = (int) $locations[ $location ];
 	}
 
-	$items = wp_get_nav_menu_items( (int) $locations[ $location ] );
+	$items = wp_get_nav_menu_items( $menu_id );
 	if ( empty( $items ) || ! is_array( $items ) ) {
 		return;
 	}

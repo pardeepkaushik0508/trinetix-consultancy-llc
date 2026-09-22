@@ -187,10 +187,8 @@ function trinetix_render_settings_page(): void {
 	$settings = trinetix_get_settings();
 	$tabs     = array(
 		'general' => __( 'General', 'trinetix' ),
-		'header'  => __( 'Header', 'trinetix' ),
 		'contact' => __( 'Contact', 'trinetix' ),
 		'social'  => __( 'Social', 'trinetix' ),
-		'footer'  => __( 'Footer', 'trinetix' ),
 		'seo'     => __( 'SEO Defaults', 'trinetix' ),
 	);
 
@@ -200,15 +198,20 @@ function trinetix_render_settings_page(): void {
 
 	$home_id  = (int) get_option( 'page_on_front' );
 	$home_url = $home_id ? get_edit_post_link( $home_id, 'raw' ) : admin_url( 'edit.php?post_type=page' );
+	$hf_url   = admin_url( 'themes.php?page=trinetix-header-footer' );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Trinetix Settings', 'trinetix' ); ?></h1>
 		<div class="notice notice-info inline" style="margin:12px 0 16px;padding:12px 16px;">
-			<p style="margin:0;">
+			<p style="margin:0 0 8px;">
 				<?php esc_html_e( 'Homepage banner, intro, section titles, and contact section text are edited on the Home page.', 'trinetix' ); ?>
 				<?php if ( $home_url ) : ?>
 					<a href="<?php echo esc_url( $home_url ); ?>"><?php esc_html_e( 'Edit Home page', 'trinetix' ); ?></a>
 				<?php endif; ?>
+			</p>
+			<p style="margin:0;">
+				<?php esc_html_e( 'Logo, header menu, header button, and footer content:', 'trinetix' ); ?>
+				<a href="<?php echo esc_url( $hf_url ); ?>"><?php esc_html_e( 'Appearance → Header & Footer', 'trinetix' ); ?></a>
 			</p>
 		</div>
 		<nav class="nav-tab-wrapper">
@@ -221,11 +224,6 @@ function trinetix_render_settings_page(): void {
 			<table class="form-table" role="presentation">
 				<?php
 				switch ( $tab ) {
-					case 'header':
-						trinetix_settings_field_text( 'brand_tagline', __( 'Brand tagline', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'header_cta_text', __( 'Contact CTA text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'header_cta_url', __( 'Contact CTA URL', 'trinetix' ), $settings );
-						break;
 					case 'contact':
 						trinetix_settings_field_text( 'contact_email', __( 'Display email', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'contact_phone', __( 'Phone', 'trinetix' ), $settings );
@@ -238,13 +236,6 @@ function trinetix_render_settings_page(): void {
 						trinetix_settings_field_text( 'social_twitter', __( 'X / Twitter URL', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'social_youtube', __( 'YouTube URL', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'social_facebook', __( 'Facebook URL', 'trinetix' ), $settings );
-						break;
-					case 'footer':
-						trinetix_settings_field_textarea( 'footer_intro', __( 'Footer introduction', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'footer_copyright', __( 'Copyright text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'footer_privacy_url', __( 'Privacy Policy URL', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'footer_terms_url', __( 'Terms & Conditions URL', 'trinetix' ), $settings );
-						echo '<tr><td colspan="2"><p class="description">' . esc_html__( 'Footer link columns: Appearance → Menus (assign Footer menus).', 'trinetix' ) . '</p></td></tr>';
 						break;
 					case 'seo':
 						trinetix_settings_field_text( 'seo_default_title', __( 'Default SEO title fallback', 'trinetix' ), $settings );
@@ -259,6 +250,7 @@ function trinetix_render_settings_page(): void {
 						trinetix_settings_field_text( 'company_name', __( 'Company name', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'brand_tagline', __( 'Brand tagline', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'organization_url', __( 'Website URL', 'trinetix' ), $settings );
+						echo '<tr><td colspan="2"><p class="description">' . esc_html__( 'Header logo, menus, and button: Appearance → Header & Footer.', 'trinetix' ) . '</p></td></tr>';
 						break;
 				}
 				?>
