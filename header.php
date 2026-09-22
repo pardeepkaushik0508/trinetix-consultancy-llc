@@ -23,6 +23,7 @@ $cta_url    = (string) trinetix_get_setting( 'header_cta_url', '#contact' );
 <a class="skip-link" href="#top"><?php esc_html_e( 'Skip to content', 'trinetix' ); ?></a>
 <div id="progress"></div>
 
+<?php if ( trinetix_show_site_header() ) : ?>
 <header class="site-header" id="header">
 	<div class="container navbar">
 		<?php echo trinetix_get_logo_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
@@ -86,3 +87,4 @@ $cta_url    = (string) trinetix_get_setting( 'header_cta_url', '#contact' );
 		</form>
 	</div>
 </div>
+<?php endif; ?>

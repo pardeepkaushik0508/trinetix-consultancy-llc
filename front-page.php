@@ -1,6 +1,6 @@
 <?php
 /**
- * Front page template.
+ * Front page template — same section stack as the Home page template.
  *
  * @package Trinetix
  */
@@ -10,20 +10,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
+
+$page_id = trinetix_front_page_id();
+if ( ! $page_id ) {
+	$page_id = (int) get_queried_object_id();
+}
 ?>
 <main id="top">
-	<?php
-	get_template_part( 'template-parts/home/hero' );
-	get_template_part( 'template-parts/home/intro' );
-	get_template_part( 'template-parts/home/approach' );
-	get_template_part( 'template-parts/home/services' );
-	get_template_part( 'template-parts/home/industries' );
-	get_template_part( 'template-parts/home/case-studies' );
-	get_template_part( 'template-parts/home/testimonials' );
-	get_template_part( 'template-parts/home/partners' );
-	get_template_part( 'template-parts/home/knowledge' );
-	get_template_part( 'template-parts/home/contact' );
-	?>
+	<?php trinetix_render_home_sections( $page_id ); ?>
 </main>
 <?php
 get_footer();

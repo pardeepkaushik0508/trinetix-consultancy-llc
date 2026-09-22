@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Page Sections
- * Description: Classic page with optional Page Hero fields. Add shortcodes in the editor for Industries, Our Work, etc.
+ * Description: Simple page with a Page Hero box. For the full homepage sections, use the “Home” template instead.
  *
  * @package Trinetix
  */

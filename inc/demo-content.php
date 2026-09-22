@@ -58,6 +58,9 @@ function trinetix_seed_pages_and_reading(): void {
 			'post_content' => function_exists( 'trinetix_home_page_editor_guide' ) ? trinetix_home_page_editor_guide() : '<!-- Homepage sections -->',
 		)
 	);
+	if ( $home_id && function_exists( 'trinetix_assign_home_template' ) ) {
+		trinetix_assign_home_template( $home_id );
+	}
 
 	$blog_id = trinetix_seed_page( 'Knowledge Hub', 'knowledge-hub' );
 	trinetix_seed_page( 'Approach', 'approach', array( 'post_content' => '<p>Learn how we engineer intelligent enterprises.</p>' ) );

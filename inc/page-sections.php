@@ -74,6 +74,77 @@ function trinetix_front_page_id(): int {
 }
 
 /**
+ * Whether a page uses the Home template.
+ *
+ * @param int $post_id Post ID.
+ * @return bool
+ */
+function trinetix_is_home_template( int $post_id ): bool {
+	if ( $post_id <= 0 ) {
+		return false;
+	}
+	return 'templates/home.php' === get_page_template_slug( $post_id );
+}
+
+/**
+ * Whether a page uses the Page Sections template.
+ *
+ * @param int $post_id Post ID.
+ * @return bool
+ */
+function trinetix_is_page_sections_template( int $post_id ): bool {
+	return 'templates/page-sections.php' === get_page_template_slug( $post_id );
+}
+
+/**
+ * Pages that store/manage the full homepage section fields.
+ *
+ * @param int $post_id Post ID.
+ * @return bool
+ */
+function trinetix_page_has_home_sections( int $post_id ): bool {
+	if ( $post_id <= 0 ) {
+		return false;
+	}
+	if ( trinetix_is_home_template( $post_id ) ) {
+		return true;
+	}
+	$front = trinetix_front_page_id();
+	return $front > 0 && $post_id === $front;
+}
+
+/**
+ * Whether the current admin screen should show Home section boxes.
+ *
+ * @param int|null $post_id Optional post ID.
+ * @return bool
+ */
+function trinetix_is_home_sections_edit( ?int $post_id = null ): bool {
+	if ( null === $post_id ) {
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $post_id && isset( $GLOBALS['post'] ) && $GLOBALS['post'] instanceof WP_Post ) {
+			$post_id = (int) $GLOBALS['post']->ID;
+		}
+	}
+	return trinetix_page_has_home_sections( $post_id );
+}
+
+/**
+ * Page ID whose meta drives section copy while rendering.
+ *
+ * @return int
+ */
+function trinetix_sections_source_page_id(): int {
+	if ( is_singular( 'page' ) ) {
+		$id = (int) get_queried_object_id();
+		if ( trinetix_page_has_home_sections( $id ) ) {
+			return $id;
+		}
+	}
+	return trinetix_front_page_id();
+}
+
+/**
  * Whether the current screen is the front page editor.
  *
  * @param int|null $post_id Optional post ID.
@@ -94,14 +165,14 @@ function trinetix_is_front_page_edit( ?int $post_id = null ): bool {
 }
 
 /**
- * Read a homepage field: page meta first, then settings / default.
+ * Read a homepage field: current Home-layout page meta first, then settings.
  *
  * @param string $key     Setting-style key.
  * @param mixed  $default Fallback.
  * @return mixed
  */
 function trinetix_home_setting( string $key, $default = '' ) {
-	$page_id = trinetix_front_page_id();
+	$page_id = trinetix_sections_source_page_id();
 	if ( $page_id ) {
 		$meta = get_post_meta( $page_id, trinetix_home_meta_key( $key ), true );
 		if ( '' !== $meta && null !== $meta ) {
@@ -127,28 +198,146 @@ function trinetix_home_json_setting( string $key ): array {
 }
 
 /**
- * Whether a page uses the Page Sections template.
+ * Section toggle keys (show/hide on Home template).
  *
- * @param int $post_id Post ID.
- * @return bool
+ * @return array<string, string> slug => label
  */
-function trinetix_is_page_sections_template( int $post_id ): bool {
-	return 'templates/page-sections.php' === get_page_template_slug( $post_id );
+function trinetix_home_section_toggles(): array {
+	return array(
+		'hero'         => __( '1. Hero / Home Banner', 'trinetix' ),
+		'intro'        => __( '2. Intro + Approach cards', 'trinetix' ),
+		'services'     => __( '3. Services', 'trinetix' ),
+		'industries'   => __( '4. Industries', 'trinetix' ),
+		'work'         => __( '5. Our Work', 'trinetix' ),
+		'testimonials' => __( '6. Testimonials', 'trinetix' ),
+		'partners'     => __( '7. Partners', 'trinetix' ),
+		'knowledge'    => __( '8. Knowledge Hub', 'trinetix' ),
+		'contact'      => __( '9. Contact', 'trinetix' ),
+	);
 }
 
 /**
- * One-time migrate settings → Home page meta + editor guide.
+ * Whether a home section should render for a page.
+ *
+ * @param int    $page_id Page ID.
+ * @param string $slug    Section slug.
+ * @return bool
+ */
+function trinetix_page_section_enabled( int $page_id, string $slug ): bool {
+	if ( $page_id <= 0 ) {
+		return true;
+	}
+	$key = '_trinetix_show_section_' . $slug;
+	$val = get_post_meta( $page_id, $key, true );
+	if ( '' === $val || null === $val ) {
+		return true;
+	}
+	return (int) $val === 1;
+}
+
+/**
+ * Whether to show the global site header on this request.
+ *
+ * @return bool
+ */
+function trinetix_show_site_header(): bool {
+	if ( ! is_singular( 'page' ) ) {
+		return true;
+	}
+	$id  = (int) get_queried_object_id();
+	$val = get_post_meta( $id, '_trinetix_show_header', true );
+	if ( '' === $val || null === $val ) {
+		return true;
+	}
+	return (int) $val === 1;
+}
+
+/**
+ * Whether to show the global site footer on this request.
+ *
+ * @return bool
+ */
+function trinetix_show_site_footer(): bool {
+	if ( ! is_singular( 'page' ) ) {
+		return true;
+	}
+	$id  = (int) get_queried_object_id();
+	$val = get_post_meta( $id, '_trinetix_show_footer', true );
+	if ( '' === $val || null === $val ) {
+		return true;
+	}
+	return (int) $val === 1;
+}
+
+/**
+ * Render the homepage section stack for a page.
+ *
+ * @param int $page_id Page ID (for toggles).
+ */
+function trinetix_render_home_sections( int $page_id ): void {
+	if ( trinetix_page_section_enabled( $page_id, 'hero' ) ) {
+		get_template_part( 'template-parts/home/hero' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'intro' ) ) {
+		get_template_part( 'template-parts/home/intro' );
+		get_template_part( 'template-parts/home/approach' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'services' ) ) {
+		get_template_part( 'template-parts/home/services' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'industries' ) ) {
+		get_template_part( 'template-parts/home/industries' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'work' ) ) {
+		get_template_part( 'template-parts/home/case-studies' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'testimonials' ) ) {
+		get_template_part( 'template-parts/home/testimonials' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'partners' ) ) {
+		get_template_part( 'template-parts/home/partners' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'knowledge' ) ) {
+		get_template_part( 'template-parts/home/knowledge' );
+	}
+	if ( trinetix_page_section_enabled( $page_id, 'contact' ) ) {
+		get_template_part( 'template-parts/home/contact' );
+	}
+}
+
+/**
+ * Assign Home template to a page.
+ *
+ * @param int $page_id Page ID.
+ */
+function trinetix_assign_home_template( int $page_id ): void {
+	if ( $page_id <= 0 ) {
+		return;
+	}
+	update_post_meta( $page_id, '_wp_page_template', 'templates/home.php' );
+}
+
+/**
+ * One-time migrate settings → Home page meta + editor guide + Home template.
  */
 function trinetix_maybe_migrate_home_page_meta(): void {
 	if ( get_option( 'trinetix_home_meta_migrated' ) ) {
+		// Still ensure front page uses Home template.
+		$front = trinetix_front_page_id();
+		if ( $front && ! trinetix_is_home_template( $front ) && ! get_option( 'trinetix_home_template_assigned' ) ) {
+			trinetix_assign_home_template( $front );
+			update_option( 'trinetix_home_template_assigned', 1, false );
+		}
 		return;
 	}
 
 	$page_id = trinetix_front_page_id();
 	if ( ! $page_id ) {
-		// Wait until a front page exists.
 		return;
 	}
+
+	trinetix_assign_home_template( $page_id );
+	update_option( 'trinetix_home_template_assigned', 1, false );
 
 	$settings = trinetix_get_settings();
 	foreach ( trinetix_home_section_keys() as $key ) {
@@ -185,6 +374,22 @@ add_action( 'admin_init', 'trinetix_maybe_migrate_home_page_meta' );
 add_action( 'after_switch_theme', 'trinetix_maybe_migrate_home_page_meta', 20 );
 
 /**
+ * Force Home template assignment once for existing installs that already migrated.
+ */
+function trinetix_maybe_assign_home_template(): void {
+	if ( get_option( 'trinetix_home_template_assigned' ) ) {
+		return;
+	}
+	$front = trinetix_front_page_id();
+	if ( ! $front ) {
+		return;
+	}
+	trinetix_assign_home_template( $front );
+	update_option( 'trinetix_home_template_assigned', 1, false );
+}
+add_action( 'admin_init', 'trinetix_maybe_assign_home_template', 25 );
+
+/**
  * Register meta boxes.
  */
 function trinetix_register_page_section_meta_boxes(): void {
@@ -196,7 +401,17 @@ function trinetix_register_page_section_meta_boxes(): void {
 		$post_id = (int) $post->ID;
 	}
 
-	if ( trinetix_is_front_page_edit( $post_id ) ) {
+	// Layout (header/footer) on every page — sidebar.
+	add_meta_box(
+		'trinetix_page_layout',
+		__( 'Header & Footer', 'trinetix' ),
+		'trinetix_render_page_layout_meta_box',
+		'page',
+		'side',
+		'high'
+	);
+
+	if ( trinetix_is_home_sections_edit( $post_id ) ) {
 		add_meta_box(
 			'trinetix_home_help',
 			__( 'How to edit this Home page', 'trinetix' ),
@@ -204,6 +419,14 @@ function trinetix_register_page_section_meta_boxes(): void {
 			'page',
 			'normal',
 			'high'
+		);
+		add_meta_box(
+			'trinetix_home_sections_toggle',
+			__( 'Which sections to show', 'trinetix' ),
+			'trinetix_render_home_sections_toggle_meta_box',
+			'page',
+			'side',
+			'default'
 		);
 		add_meta_box(
 			'trinetix_home_hero',
@@ -239,7 +462,7 @@ function trinetix_register_page_section_meta_boxes(): void {
 		);
 	}
 
-	if ( $post_id && trinetix_is_page_sections_template( $post_id ) && ! trinetix_is_front_page_edit( $post_id ) ) {
+	if ( $post_id && trinetix_is_page_sections_template( $post_id ) && ! trinetix_is_home_sections_edit( $post_id ) ) {
 		add_meta_box(
 			'trinetix_page_hero',
 			__( 'Page Hero', 'trinetix' ),
@@ -257,12 +480,52 @@ add_action( 'add_meta_boxes', 'trinetix_register_page_section_meta_boxes' );
  */
 function trinetix_render_home_help_meta_box(): void {
 	echo '<div style="line-height:1.55;font-size:14px;">';
+	echo '<p><strong>' . esc_html__( 'Template:', 'trinetix' ) . '</strong> ' . esc_html__( 'Page Attributes → Template must be “Home” to see these section boxes.', 'trinetix' ) . '</p>';
 	echo '<p><strong>' . esc_html__( 'Logo:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Customize → Site Identity.', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Header & footer menus:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Menus.', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Banner & section text:', 'trinetix' ) . '</strong> ' . esc_html__( 'Use the numbered boxes below (1 → 4).', 'trinetix' ) . '</p>';
-	echo '<p><strong>' . esc_html__( 'Services / Industries / Case Studies cards:', 'trinetix' ) . '</strong> ' . esc_html__( 'Edit those items in the left admin menu. Shortcodes in the editor above display those lists — you can copy them to other pages.', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Header & footer menus:', 'trinetix' ) . '</strong> ' . esc_html__( 'Appearance → Menus (global). Use the “Header & Footer” box in the sidebar to show/hide them on this page.', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Banner & section text:', 'trinetix' ) . '</strong> ' . esc_html__( 'Use the numbered boxes below (1 → 4). Turn sections on/off in the sidebar.', 'trinetix' ) . '</p>';
+	echo '<p><strong>' . esc_html__( 'Services / Industries / Case Studies cards:', 'trinetix' ) . '</strong> ' . esc_html__( 'Edit those items in the left admin menu. Shortcodes in the editor are for copying onto other pages.', 'trinetix' ) . '</p>';
 	echo '<p><strong>' . esc_html__( 'Site-wide contact email & footer legal URLs:', 'trinetix' ) . '</strong> ' . esc_html__( 'Trinetix Settings (sidebar).', 'trinetix' ) . '</p>';
 	echo '</div>';
+}
+
+/**
+ * Sidebar: show/hide global header & footer on this page.
+ *
+ * @param WP_Post $post Post.
+ */
+function trinetix_render_page_layout_meta_box( WP_Post $post ): void {
+	wp_nonce_field( 'trinetix_save_page_layout', 'trinetix_page_layout_nonce' );
+	$id      = (int) $post->ID;
+	$header  = get_post_meta( $id, '_trinetix_show_header', true );
+	$footer  = get_post_meta( $id, '_trinetix_show_footer', true );
+	$show_h  = ( '' === $header || null === $header ) ? 1 : (int) $header;
+	$show_f  = ( '' === $footer || null === $footer ) ? 1 : (int) $footer;
+
+	echo '<p class="description" style="margin-top:0;">' . esc_html__( 'Header and footer content stay global (Customizer + Menus + Trinetix Settings). These options only show or hide them on this page.', 'trinetix' ) . '</p>';
+	echo '<p><label><input type="checkbox" name="_trinetix_show_header" value="1" ' . checked( $show_h, 1, false ) . ' /> ' . esc_html__( 'Show site header', 'trinetix' ) . '</label></p>';
+	echo '<p><label><input type="checkbox" name="_trinetix_show_footer" value="1" ' . checked( $show_f, 1, false ) . ' /> ' . esc_html__( 'Show site footer', 'trinetix' ) . '</label></p>';
+}
+
+/**
+ * Sidebar: which home sections to display.
+ *
+ * @param WP_Post $post Post.
+ */
+function trinetix_render_home_sections_toggle_meta_box( WP_Post $post ): void {
+	$id = (int) $post->ID;
+	echo '<p class="description" style="margin-top:0;">' . esc_html__( 'Uncheck a section to hide it on this page.', 'trinetix' ) . '</p>';
+	foreach ( trinetix_home_section_toggles() as $slug => $label ) {
+		$key = '_trinetix_show_section_' . $slug;
+		$val = get_post_meta( $id, $key, true );
+		$on  = ( '' === $val || null === $val ) ? 1 : (int) $val;
+		printf(
+			'<p style="margin:6px 0;"><label><input type="checkbox" name="%1$s" value="1" %2$s /> %3$s</label></p>',
+			esc_attr( $key ),
+			checked( $on, 1, false ),
+			esc_html( $label )
+		);
+	}
 }
 
 /**
@@ -336,21 +599,21 @@ function trinetix_render_home_hero_meta_box( WP_Post $post ): void {
 
 	trinetix_render_media_field(
 		trinetix_home_meta_key( 'hero_video_id' ),
-		(int) trinetix_home_setting( 'hero_video_id', 0 ),
+		(int) ( get_post_meta( $id, trinetix_home_meta_key( 'hero_video_id' ), true ) ?: trinetix_get_setting( 'hero_video_id', 0 ) ),
 		__( 'Desktop hero video', 'trinetix' ),
 		'video',
 		'hero_video_id'
 	);
 	trinetix_render_media_field(
 		trinetix_home_meta_key( 'hero_video_mobile_id' ),
-		(int) trinetix_home_setting( 'hero_video_mobile_id', 0 ),
+		(int) ( get_post_meta( $id, trinetix_home_meta_key( 'hero_video_mobile_id' ), true ) ?: trinetix_get_setting( 'hero_video_mobile_id', 0 ) ),
 		__( 'Mobile hero video', 'trinetix' ),
 		'video',
 		'hero_video_mobile_id'
 	);
 	trinetix_render_media_field(
 		trinetix_home_meta_key( 'hero_poster_id' ),
-		(int) trinetix_home_setting( 'hero_poster_id', 0 ),
+		(int) ( get_post_meta( $id, trinetix_home_meta_key( 'hero_poster_id' ), true ) ?: trinetix_get_setting( 'hero_poster_id', 0 ) ),
 		__( 'Hero poster image', 'trinetix' ),
 		'image',
 		'hero_poster_id'
@@ -372,7 +635,7 @@ function trinetix_render_home_intro_meta_box( WP_Post $post ): void {
 	trinetix_page_meta_field( $id, 'intro_cta_url', __( 'Intro CTA URL', 'trinetix' ) );
 	trinetix_render_media_field(
 		trinetix_home_meta_key( 'intro_video_image_id' ),
-		(int) trinetix_home_setting( 'intro_video_image_id', 0 ),
+		(int) ( get_post_meta( $id, trinetix_home_meta_key( 'intro_video_image_id' ), true ) ?: trinetix_get_setting( 'intro_video_image_id', 0 ) ),
 		__( 'Intro video card image', 'trinetix' ),
 		'image',
 		'intro_video_image_id'
@@ -446,7 +709,11 @@ function trinetix_save_home_section_meta( int $post_id ): void {
 	if ( ! current_user_can( 'edit_page', $post_id ) ) {
 		return;
 	}
-	if ( (int) get_option( 'page_on_front' ) !== $post_id ) {
+
+	// Allow save when Home template is selected on this request, or page already has home sections.
+	$posted_template = isset( $_POST['page_template'] ) ? sanitize_text_field( wp_unslash( $_POST['page_template'] ) ) : '';
+	$is_home_tpl     = ( 'templates/home.php' === $posted_template ) || trinetix_page_has_home_sections( $post_id );
+	if ( ! $is_home_tpl ) {
 		return;
 	}
 
@@ -520,8 +787,34 @@ function trinetix_save_home_section_meta( int $post_id ): void {
 
 	$video_key = trinetix_home_meta_key( 'hero_video_enabled' );
 	update_post_meta( $post_id, $video_key, ! empty( $_POST[ $video_key ] ) ? 1 : 0 );
+
+	foreach ( array_keys( trinetix_home_section_toggles() ) as $slug ) {
+		$key = '_trinetix_show_section_' . $slug;
+		update_post_meta( $post_id, $key, ! empty( $_POST[ $key ] ) ? 1 : 0 );
+	}
 }
 add_action( 'save_post_page', 'trinetix_save_home_section_meta' );
+
+/**
+ * Save header/footer visibility.
+ *
+ * @param int $post_id Post ID.
+ */
+function trinetix_save_page_layout_meta( int $post_id ): void {
+	if ( ! isset( $_POST['trinetix_page_layout_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['trinetix_page_layout_nonce'] ) ), 'trinetix_save_page_layout' ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_page', $post_id ) ) {
+		return;
+	}
+
+	update_post_meta( $post_id, '_trinetix_show_header', ! empty( $_POST['_trinetix_show_header'] ) ? 1 : 0 );
+	update_post_meta( $post_id, '_trinetix_show_footer', ! empty( $_POST['_trinetix_show_footer'] ) ? 1 : 0 );
+}
+add_action( 'save_post_page', 'trinetix_save_page_layout_meta' );
 
 /**
  * Save generic page hero meta.
@@ -550,3 +843,63 @@ function trinetix_save_page_hero_meta( int $post_id ): void {
 	}
 }
 add_action( 'save_post_page', 'trinetix_save_page_hero_meta' );
+
+/**
+ * When user switches template to Home in the editor, seed empty editor guide.
+ *
+ * @param int $post_id Post ID.
+ */
+function trinetix_maybe_seed_home_editor_on_template_switch( int $post_id ): void {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_page', $post_id ) ) {
+		return;
+	}
+	$posted_template = isset( $_POST['page_template'] ) ? sanitize_text_field( wp_unslash( $_POST['page_template'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if ( 'templates/home.php' !== $posted_template ) {
+		return;
+	}
+	$post = get_post( $post_id );
+	if ( ! $post instanceof WP_Post ) {
+		return;
+	}
+	if ( '' !== trim( wp_strip_all_tags( (string) $post->post_content ) ) ) {
+		return;
+	}
+	if ( ! function_exists( 'trinetix_home_page_editor_guide' ) ) {
+		return;
+	}
+	remove_action( 'save_post_page', 'trinetix_maybe_seed_home_editor_on_template_switch' );
+	wp_update_post(
+		array(
+			'ID'           => $post_id,
+			'post_content' => trinetix_home_page_editor_guide(),
+		)
+	);
+	add_action( 'save_post_page', 'trinetix_maybe_seed_home_editor_on_template_switch' );
+}
+add_action( 'save_post_page', 'trinetix_maybe_seed_home_editor_on_template_switch', 20 );
+
+/**
+ * Remind editors to pick the Home template for full section boxes.
+ *
+ * @param WP_Post $post Post.
+ */
+function trinetix_home_template_admin_notice(): void {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen || 'page' !== $screen->id ) {
+		return;
+	}
+	$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! $post_id ) {
+		return;
+	}
+	$front = trinetix_front_page_id();
+	if ( $front && $post_id === $front && ! trinetix_is_home_template( $post_id ) ) {
+		echo '<div class="notice notice-warning"><p>';
+		echo esc_html__( 'This is your site front page. Set Page Attributes → Template to “Home” to edit all homepage sections (Hero, Intro, titles, Contact).', 'trinetix' );
+		echo '</p></div>';
+	}
+}
+add_action( 'admin_notices', 'trinetix_home_template_admin_notice' );

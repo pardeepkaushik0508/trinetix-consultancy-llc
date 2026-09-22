@@ -25,6 +25,7 @@ if ( $custom_logo_id ) {
 	}
 }
 ?>
+<?php if ( trinetix_show_site_footer() ) : ?>
 <footer class="footer">
 	<div class="container footer-top">
 		<div class="footer-heading-row">
@@ -91,6 +92,7 @@ if ( $custom_logo_id ) {
 		</div>
 	</div>
 </footer>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>

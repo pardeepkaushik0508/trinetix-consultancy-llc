@@ -78,7 +78,8 @@ trinetix-consultancy-llc/
 |------|--------|
 | Logo | Appearance → Customize → Site Identity |
 | Header / footer menus | Appearance → Menus |
-| Home banner, intro, section titles, contact section text | **Pages → Home** (boxes 1–4) |
+| Home banner, intro, section titles, contact section text | **Pages → Home** — set Template to **Home**, then use boxes 1–4 |
+| Show/hide header or footer on a page | Edit page → sidebar **Header & Footer** |
 | Industries / Our Work lists on any page | Shortcodes `[trinetix_industries]` / `[trinetix_work]` in the Classic Editor |
 | Service / industry / case study cards | Left admin menus (Services, Industries, Case Studies, …) |
 | Contact email, form recipient, footer copyright, SEO | Trinetix Settings |
