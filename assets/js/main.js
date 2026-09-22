@@ -71,14 +71,26 @@
       });
     }
 
-    /* Pills (filter / tab chips) */
-    document.querySelectorAll('.pill').forEach(function (btn) {
+    /* Contact interest pills — only set when user explicitly selects one */
+    var contactPills = document.querySelectorAll('#contact .pill[data-interest]');
+    contactPills.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        document.querySelectorAll('.pill').forEach(function (x) {
-          x.classList.remove('active');
-        });
-        btn.classList.add('active');
         var interest = document.getElementById('trinetixInterest');
+        var wasActive = btn.classList.contains('active');
+
+        contactPills.forEach(function (x) {
+          x.classList.remove('active');
+          x.setAttribute('aria-pressed', 'false');
+        });
+
+        if (wasActive) {
+          // Toggle off — clear interest so we don't store a default.
+          if (interest) interest.value = '';
+          return;
+        }
+
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         if (interest) {
           interest.value = btn.getAttribute('data-interest') || btn.textContent.trim();
         }

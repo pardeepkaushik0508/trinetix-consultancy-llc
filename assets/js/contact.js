@@ -134,15 +134,13 @@
             );
             form.reset();
 
-            // Restore default interest from first active pill (or first pill).
+            // Clear interest — only set again when user picks a pill.
             var interest = document.getElementById('trinetixInterest');
-            if (interest) {
-              var active =
-                document.querySelector('.pill.active') || document.querySelector('.pill');
-              interest.value = active
-                ? active.getAttribute('data-interest') || active.textContent.trim()
-                : '';
-            }
+            if (interest) interest.value = '';
+            document.querySelectorAll('#contact .pill[data-interest]').forEach(function (pill) {
+              pill.classList.remove('active');
+              pill.setAttribute('aria-pressed', 'false');
+            });
           } else {
             var msg =
               (payload && payload.data && payload.data.message) ||

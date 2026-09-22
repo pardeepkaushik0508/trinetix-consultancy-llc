@@ -23,8 +23,8 @@ $pill_list = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\
 			<?php endif; ?>
 			<?php if ( ! empty( $pill_list ) ) : ?>
 				<div class="pills" role="group" aria-label="<?php esc_attr_e( 'Areas of interest', 'trinetix' ); ?>">
-					<?php foreach ( $pill_list as $i => $pill ) : ?>
-						<button class="pill<?php echo 0 === $i ? ' active' : ''; ?>" type="button" data-interest="<?php echo esc_attr( $pill ); ?>">
+					<?php foreach ( $pill_list as $pill ) : ?>
+						<button class="pill" type="button" data-interest="<?php echo esc_attr( $pill ); ?>" aria-pressed="false">
 							<?php echo esc_html( $pill ); ?>
 						</button>
 					<?php endforeach; ?>
@@ -44,7 +44,7 @@ $pill_list = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\
 		<form class="form reveal" id="trinetixContactForm" method="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" novalidate>
 			<input type="hidden" name="action" value="trinetix_contact" />
 			<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'trinetix_contact' ) ); ?>" />
-			<input type="hidden" name="interest" id="trinetixInterest" value="<?php echo esc_attr( $pill_list[0] ?? '' ); ?>" />
+			<input type="hidden" name="interest" id="trinetixInterest" value="" />
 			<p class="hp-field" style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
 				<label for="trinetixWebsite"><?php esc_html_e( 'Website', 'trinetix' ); ?></label>
 				<input type="text" name="website" id="trinetixWebsite" tabindex="-1" autocomplete="off" />
