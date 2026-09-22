@@ -9,10 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$heading = (string) trinetix_get_setting( 'contact_heading', 'How can we help you?' );
-$copy    = (string) trinetix_get_setting( 'contact_copy', '' );
+$heading = (string) trinetix_home_setting( 'contact_heading', 'How can we help you?' );
+$copy    = (string) trinetix_home_setting( 'contact_copy', '' );
 $email   = (string) trinetix_get_setting( 'contact_email', 'info@trinetixconsulting.com' );
-$pills   = (string) trinetix_get_setting( 'contact_pills', "Artificial Intelligence\nData & Analytics\nDigital Engineering\nExperience" );
+$pills   = (string) trinetix_home_setting( 'contact_pills', "Artificial Intelligence\nData & Analytics\nDigital Engineering\nExperience" );
 $pill_list = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $pills ) ?: array() ) ) );
 ?>
 <section class="contact" id="contact">

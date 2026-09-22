@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = (string) trinetix_get_setting( 'testimonials_title', 'What Our Customers Say' );
+$title = (string) trinetix_home_setting( 'testimonials_title', 'What Our Customers Say' );
 $items = trinetix_get_testimonials_payload();
 $first = $items[0] ?? null;
 

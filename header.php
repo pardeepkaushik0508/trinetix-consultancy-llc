@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $cta_text   = (string) trinetix_get_setting( 'header_cta_text', 'Contact Us' );
 $cta_url    = (string) trinetix_get_setting( 'header_cta_url', '#contact' );
-$search_url = home_url( '/?s=' );
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -59,9 +58,9 @@ $search_url = home_url( '/?s=' );
 		</nav>
 
 		<div class="header-actions">
-			<div class="search" role="button" tabindex="0" aria-label="<?php esc_attr_e( 'Search', 'trinetix' ); ?>" data-search-url="<?php echo esc_url( $search_url ); ?>">
+			<button type="button" class="search" id="trinetixSearchToggle" aria-label="<?php esc_attr_e( 'Open search', 'trinetix' ); ?>" aria-expanded="false" aria-controls="trinetixSearchOverlay">
 				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"><circle cx="11" cy="11" r="6.5" fill="none"></circle><path d="M16.5 16.5L21 21" fill="none"></path></svg>
-			</div>
+			</button>
 			<?php if ( $cta_text ) : ?>
 				<a class="btn btn-outline" href="<?php echo esc_url( $cta_url ); ?>">
 					<?php echo esc_html( $cta_text ); ?>
@@ -74,3 +73,16 @@ $search_url = home_url( '/?s=' );
 		</div>
 	</div>
 </header>
+
+<div class="trinetix-search-overlay" id="trinetixSearchOverlay" hidden>
+	<div class="trinetix-search-overlay__panel" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Search the site', 'trinetix' ); ?>">
+		<button type="button" class="trinetix-search-overlay__close" id="trinetixSearchClose" aria-label="<?php esc_attr_e( 'Close search', 'trinetix' ); ?>">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<form role="search" method="get" class="trinetix-search-overlay__form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<label class="screen-reader-text" for="trinetix-overlay-search"><?php esc_html_e( 'Search for:', 'trinetix' ); ?></label>
+			<input type="search" id="trinetix-overlay-search" class="trinetix-search-overlay__input" placeholder="<?php esc_attr_e( 'Search pages, articles…', 'trinetix' ); ?>" value="<?php echo esc_attr( get_search_query() ); ?>" name="s" autocomplete="off" />
+			<button type="submit" class="btn btn-cyan trinetix-search-overlay__submit"><?php esc_html_e( 'Search', 'trinetix' ); ?></button>
+		</form>
+	</div>
+</div>

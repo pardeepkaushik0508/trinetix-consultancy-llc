@@ -43,6 +43,7 @@ if ( $custom_logo_id ) {
 			trinetix_render_footer_row( 'footer_data', __( 'Data & Analytics', 'trinetix' ) );
 			trinetix_render_footer_row( 'footer_engineering', __( 'Digital Engineering', 'trinetix' ) );
 			trinetix_render_footer_row( 'footer_experience', __( 'Experience', 'trinetix' ) );
+			trinetix_render_footer_row( 'footer_company', __( 'Company', 'trinetix' ) );
 
 			if (
 				! has_nav_menu( 'footer_ai' )
@@ -57,18 +58,35 @@ if ( $custom_logo_id ) {
 
 		<div class="footer-bottom">
 			<span><?php echo esc_html( $copyright ? $copyright : sprintf( '© %s %s. All rights reserved.', gmdate( 'Y' ), $company ) ); ?></span>
-			<span>
-				<?php if ( $privacy ) : ?>
-					<a href="<?php echo esc_url( $privacy ); ?>"><?php esc_html_e( 'Privacy Policy', 'trinetix' ); ?></a>
-				<?php else : ?>
-					<?php esc_html_e( 'Privacy Policy', 'trinetix' ); ?>
-				<?php endif; ?>
-				&nbsp; • &nbsp;
-				<?php if ( $terms ) : ?>
-					<a href="<?php echo esc_url( $terms ); ?>"><?php esc_html_e( 'Terms & Conditions', 'trinetix' ); ?></a>
-				<?php else : ?>
-					<?php esc_html_e( 'Terms & Conditions', 'trinetix' ); ?>
-				<?php endif; ?>
+			<span class="footer-legal">
+				<?php
+				if ( has_nav_menu( 'footer_legal' ) ) {
+					wp_nav_menu(
+						array(
+							'theme_location' => 'footer_legal',
+							'container'      => false,
+							'depth'          => 1,
+							'fallback_cb'    => false,
+							'items_wrap'     => '%3$s',
+							'walker'         => new Trinetix_Flat_Nav_Walker(),
+						)
+					);
+				} else {
+					?>
+					<?php if ( $privacy ) : ?>
+						<a href="<?php echo esc_url( $privacy ); ?>"><?php esc_html_e( 'Privacy Policy', 'trinetix' ); ?></a>
+					<?php else : ?>
+						<?php esc_html_e( 'Privacy Policy', 'trinetix' ); ?>
+					<?php endif; ?>
+					&nbsp; • &nbsp;
+					<?php if ( $terms ) : ?>
+						<a href="<?php echo esc_url( $terms ); ?>"><?php esc_html_e( 'Terms & Conditions', 'trinetix' ); ?></a>
+					<?php else : ?>
+						<?php esc_html_e( 'Terms & Conditions', 'trinetix' ); ?>
+					<?php endif; ?>
+					<?php
+				}
+				?>
 			</span>
 		</div>
 	</div>

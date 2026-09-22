@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = (string) trinetix_get_setting( 'industries_title', 'Our Industry Expertise' );
+$title = (string) trinetix_home_setting( 'industries_title', 'Our Industry Expertise' );
 list( $title_main, $title_accent ) = trinetix_split_accent_title( $title );
 
 $industries = trinetix_get_industries_payload();

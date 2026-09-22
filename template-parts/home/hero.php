@@ -9,19 +9,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$eyebrow      = (string) trinetix_get_setting( 'hero_eyebrow', '' );
-$heading      = (string) trinetix_get_setting( 'hero_heading', "We engineer\nintelligent enterprises" );
-$subline      = (string) trinetix_get_setting( 'hero_subline', 'for a world that keeps moving.' );
-$description  = (string) trinetix_get_setting( 'hero_description', '' );
-$cta_text     = (string) trinetix_get_setting( 'hero_cta_text', '' );
-$cta_url      = (string) trinetix_get_setting( 'hero_cta_url', '#approach' );
-$cta2_text    = (string) trinetix_get_setting( 'hero_cta_secondary_text', '' );
-$cta2_url     = (string) trinetix_get_setting( 'hero_cta_secondary_url', '' );
-$video_on     = (int) trinetix_get_setting( 'hero_video_enabled', 1 );
-$video_id     = (int) trinetix_get_setting( 'hero_video_id', 0 );
-$video_m_id   = (int) trinetix_get_setting( 'hero_video_mobile_id', 0 );
-$poster_id    = (int) trinetix_get_setting( 'hero_poster_id', 0 );
-$playback     = (string) trinetix_get_setting( 'hero_playback_rate', '1' );
+$eyebrow      = (string) trinetix_home_setting( 'hero_eyebrow', '' );
+$heading      = (string) trinetix_home_setting( 'hero_heading', "We engineer\nintelligent enterprises" );
+$subline      = (string) trinetix_home_setting( 'hero_subline', 'for a world that keeps moving.' );
+$description  = (string) trinetix_home_setting( 'hero_description', '' );
+$cta_text     = (string) trinetix_home_setting( 'hero_cta_text', '' );
+$cta_url      = (string) trinetix_home_setting( 'hero_cta_url', '#approach' );
+$cta2_text    = (string) trinetix_home_setting( 'hero_cta_secondary_text', '' );
+$cta2_url     = (string) trinetix_home_setting( 'hero_cta_secondary_url', '' );
+$video_on     = (int) trinetix_home_setting( 'hero_video_enabled', 1 );
+$video_id     = (int) trinetix_home_setting( 'hero_video_id', 0 );
+$video_m_id   = (int) trinetix_home_setting( 'hero_video_mobile_id', 0 );
+$poster_id    = (int) trinetix_home_setting( 'hero_poster_id', 0 );
+$playback     = (string) trinetix_home_setting( 'hero_playback_rate', '1' );
 
 $video_url = $video_id ? (string) wp_get_attachment_url( $video_id ) : '';
 if ( ! $video_url ) {
@@ -31,7 +31,7 @@ if ( ! $video_url ) {
 $video_mobile = $video_m_id ? (string) wp_get_attachment_url( $video_m_id ) : '';
 $poster_url   = trinetix_image_url( $poster_id, 'full', trinetix_asset_uri( 'assets/images/hero-poster.jpg' ) );
 
-$capabilities = trinetix_get_json_setting( 'hero_capabilities_json' );
+$capabilities = trinetix_home_json_setting( 'hero_capabilities_json' );
 if ( empty( $capabilities ) ) {
 	$capabilities = trinetix_default_hero_capabilities();
 }

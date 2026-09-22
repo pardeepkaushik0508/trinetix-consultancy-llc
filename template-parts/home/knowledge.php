@@ -9,10 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title_raw = (string) trinetix_get_setting( 'knowledge_title', 'Knowledge Hub' );
+$title_raw = (string) trinetix_home_setting( 'knowledge_title', 'Knowledge Hub' );
 list( $title_main, $title_accent ) = trinetix_split_accent_title( $title_raw );
-$cta_text = (string) trinetix_get_setting( 'knowledge_cta_text', 'Explore More Insights' );
-$cta_url  = (string) trinetix_get_setting( 'knowledge_cta_url', '' );
+$cta_text = (string) trinetix_home_setting( 'knowledge_cta_text', 'Explore More Insights' );
+$cta_url  = (string) trinetix_home_setting( 'knowledge_cta_url', '' );
 if ( ! $cta_url ) {
 	$blog = (int) get_option( 'page_for_posts' );
 	$cta_url = $blog ? get_permalink( $blog ) : home_url( '/' );

@@ -14,7 +14,8 @@ Custom WordPress theme for **Trinetix Consulting LLC**, converted from the appro
 2. Activate **Trinetix Consultancy LLC**.
 3. On first activation the theme seeds demo content once (`trinetix_initial_content_seeded`). It never overwrites existing CPT posts, menus already assigned to theme locations, or an already-configured static front page.
 4. Visit **Settings → Permalinks** and click **Save** if archive URLs 404.
-5. Open **Appearance → Customize** or the theme settings screen to replace placeholder copy, logos, and media.
+5. Open **Pages → Home** to edit the banner and section text (Classic Editor + numbered boxes). Logo: **Appearance → Customize**. Menus: **Appearance → Menus**. Site-wide email/footer/SEO: **Trinetix Settings**.
+6. Visit **Settings → Permalinks** and click **Save** if archive URLs 404.
 
 ## What gets seeded (once)
 
@@ -60,19 +61,35 @@ trinetix-consultancy-llc/
     ├── taxonomies.php
     ├── meta-boxes.php
     ├── media-fields.php
-    ├── admin-settings.php
+    ├── classic-editor.php    # Classic Editor for pages
+    ├── page-sections.php     # Home page section meta + migration
+    ├── shortcodes.php        # [trinetix_industries], [trinetix_work], …
+    ├── admin-settings.php    # Slim globals (not homepage copy)
     ├── contact-handler.php
     ├── seo.php / schema.php / security.php
     └── demo-content.php
+├── templates/page-sections.php  # Optional “Page Sections” template
+└── screenshot.png            # Appearance → Themes preview
 ```
+
+## Where to edit content (non-technical)
+
+| What | Where |
+|------|--------|
+| Logo | Appearance → Customize → Site Identity |
+| Header / footer menus | Appearance → Menus |
+| Home banner, intro, section titles, contact section text | **Pages → Home** (boxes 1–4) |
+| Industries / Our Work lists on any page | Shortcodes `[trinetix_industries]` / `[trinetix_work]` in the Classic Editor |
+| Service / industry / case study cards | Left admin menus (Services, Industries, Case Studies, …) |
+| Contact email, form recipient, footer copyright, SEO | Trinetix Settings |
 
 ## Settings API (do not redefine defaults differently)
 
 Use helpers from `inc/helpers.php`:
 
-- `trinetix_get_setting( $key, $default )`
-- `trinetix_get_settings()`
-- `trinetix_default_settings()` — brand, header CTA, hero, intro, section titles, contact, footer, SEO keys
+- `trinetix_get_setting( $key, $default )` — site-wide option
+- `trinetix_home_setting( $key, $default )` — Home page meta first, then settings
+- `trinetix_get_settings()` / `trinetix_default_settings()`
 - `trinetix_asset_uri()` / `trinetix_asset_path()` / `trinetix_asset_version()`
 - `trinetix_get_logo_html()` — returns a full `<a class="brand">…</a>`; use **alone** in the header (do not wrap again)
 - `trinetix_arrow_icon( $variant )`
@@ -81,23 +98,37 @@ Use helpers from `inc/helpers.php`:
 - `trinetix_split_accent_title()`
 - `Trinetix_Flat_Nav_Walker` — primary nav outputs bare `<a>` tags for the extracted CSS
 
-Admin UI: `inc/admin-settings.php` stores values in the `trinetix_settings` option.
+Admin UI: `inc/admin-settings.php` stores **global** values in the `trinetix_settings` option. Homepage copy lives on the Home page meta (`inc/page-sections.php`).
 
 ## Homepage sections
 
-`front-page.php` loads:
+`front-page.php` loads (fixed order):
 
-1. Hero (video from settings or `assets/video/hero.mp4` + `assets/images/hero-poster.jpg`)
+1. Hero (video from Home page fields or theme assets)
 2. Intro + Approach cards
 3. Services
-4. Industries (tabs driven by `trinetixIndustries` localized JSON)
-5. Case studies / Work
+4. Industries (tabs driven by `trinetixIndustries` localized JSON) — also `[trinetix_industries]`
+5. Case studies / Work — also `[trinetix_work]`
 6. Testimonials (`trinetixTestimonials`)
 7. Partners
 8. Knowledge Hub
 9. Contact (`#trinetixContactForm` → AJAX `trinetix_contact`)
 
 Empty CPT queries fall back to reference copy so the layout still renders before editors publish content.
+
+## Shortcodes
+
+| Shortcode | Section |
+|-----------|---------|
+| `[trinetix_industries]` | Industry expertise slider |
+| `[trinetix_work]` | Our Work / case studies |
+| `[trinetix_services]` | Services grid |
+| `[trinetix_testimonials]` | Testimonials |
+| `[trinetix_partners]` | Partners |
+| `[trinetix_knowledge]` | Knowledge Hub |
+| `[trinetix_approach]` | Approach cards |
+| `[trinetix_contact]` | Contact form section |
+| `[trinetix_hero]` / `[trinetix_intro]` | Hero / intro (advanced reuse) |
 
 ## Custom post types
 
@@ -126,7 +157,7 @@ Registered locations (`inc/theme-setup.php`):
 
 - `primary`
 - `footer_ai`, `footer_data`, `footer_engineering`, `footer_experience`
-- `footer_company`, `footer_legal` (available; bottom legal links also use settings URLs)
+- `footer_company`, `footer_legal` (rendered in footer when assigned)
 
 Footer rows expect **parent items as column titles** and **children as links**.
 
@@ -134,16 +165,18 @@ Footer rows expect **parent items as column titles** and **children as links**.
 
 Do not delete `assets/css` or `assets/js`. Enqueue uses filemtime versioning. Homepage scripts:
 
-- `navigation.js`, `main.js` — all pages
+- `navigation.js`, `main.js` — all pages (search overlay in `navigation.js`)
 - `hero-video.js`, `sliders.js`, `contact.js` — front page
 
 ## Development tips
 
 - Match class names from `_extract/body-clean.html` when changing markup.
-- Prefer `trinetix_get_setting()` over any legacy `trinetix_get_option()` calls.
+- Prefer `trinetix_home_setting()` for homepage copy and `trinetix_get_setting()` for globals.
 - After adding CPT rewrite changes, flush permalinks.
 - Replace Unsplash fallback images by setting featured images on CPT items.
+- Pages use the **Classic Editor** by default (`inc/classic-editor.php`).
 
 ## License
 
 Proprietary — Trinetix Consulting LLC. All rights reserved.
+

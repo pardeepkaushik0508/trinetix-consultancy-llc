@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = (string) trinetix_get_setting( 'services_title', 'Our Services' );
+$title = (string) trinetix_home_setting( 'services_title', 'Our Services' );
 list( $title_main, $title_accent ) = trinetix_split_accent_title( $title );
 
 $query = trinetix_ordered_query( 'service' );

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = (string) trinetix_get_setting( 'work_title', 'Our Work' );
+$title = (string) trinetix_home_setting( 'work_title', 'Our Work' );
 list( $title_main, $title_accent ) = trinetix_split_accent_title( $title );
 
 $query = trinetix_ordered_query( 'case_study', array( 'posts_per_page' => 4 ) );

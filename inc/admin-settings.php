@@ -186,22 +186,31 @@ function trinetix_render_settings_page(): void {
 	$tab      = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$settings = trinetix_get_settings();
 	$tabs     = array(
-		'general'  => __( 'General', 'trinetix' ),
-		'header'   => __( 'Header', 'trinetix' ),
-		'hero'     => __( 'Hero', 'trinetix' ),
-		'homepage' => __( 'Homepage', 'trinetix' ),
-		'contact'  => __( 'Contact', 'trinetix' ),
-		'social'   => __( 'Social', 'trinetix' ),
-		'footer'   => __( 'Footer', 'trinetix' ),
-		'seo'      => __( 'SEO Defaults', 'trinetix' ),
+		'general' => __( 'General', 'trinetix' ),
+		'header'  => __( 'Header', 'trinetix' ),
+		'contact' => __( 'Contact', 'trinetix' ),
+		'social'  => __( 'Social', 'trinetix' ),
+		'footer'  => __( 'Footer', 'trinetix' ),
+		'seo'     => __( 'SEO Defaults', 'trinetix' ),
 	);
 
 	if ( ! isset( $tabs[ $tab ] ) ) {
 		$tab = 'general';
 	}
+
+	$home_id  = (int) get_option( 'page_on_front' );
+	$home_url = $home_id ? get_edit_post_link( $home_id, 'raw' ) : admin_url( 'edit.php?post_type=page' );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Trinetix Settings', 'trinetix' ); ?></h1>
+		<div class="notice notice-info inline" style="margin:12px 0 16px;padding:12px 16px;">
+			<p style="margin:0;">
+				<?php esc_html_e( 'Homepage banner, intro, section titles, and contact section text are edited on the Home page.', 'trinetix' ); ?>
+				<?php if ( $home_url ) : ?>
+					<a href="<?php echo esc_url( $home_url ); ?>"><?php esc_html_e( 'Edit Home page', 'trinetix' ); ?></a>
+				<?php endif; ?>
+			</p>
+		</div>
 		<nav class="nav-tab-wrapper">
 			<?php foreach ( $tabs as $key => $label ) : ?>
 				<a class="nav-tab <?php echo $tab === $key ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=trinetix-settings&tab=' . $key ) ); ?>"><?php echo esc_html( $label ); ?></a>
@@ -217,55 +226,12 @@ function trinetix_render_settings_page(): void {
 						trinetix_settings_field_text( 'header_cta_text', __( 'Contact CTA text', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'header_cta_url', __( 'Contact CTA URL', 'trinetix' ), $settings );
 						break;
-					case 'hero':
-						trinetix_settings_field_text( 'hero_eyebrow', __( 'Hero eyebrow', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'hero_heading', __( 'Hero main heading (use line breaks)', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'hero_subline', __( 'Hero subline', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'hero_description', __( 'Hero description', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'hero_cta_text', __( 'Primary CTA text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'hero_cta_url', __( 'Primary CTA URL', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'hero_cta_secondary_text', __( 'Secondary CTA text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'hero_cta_secondary_url', __( 'Secondary CTA URL', 'trinetix' ), $settings );
-						trinetix_settings_field_checkbox( 'hero_video_enabled', __( 'Enable hero video', 'trinetix' ), $settings );
-						echo '<tr><th>' . esc_html__( 'Desktop hero video', 'trinetix' ) . '</th><td>';
-						trinetix_render_media_field( 'trinetix_settings[hero_video_id]', (int) $settings['hero_video_id'], '', 'video', 'hero_video_id' );
-						echo '</td></tr>';
-						echo '<tr><th>' . esc_html__( 'Mobile hero video', 'trinetix' ) . '</th><td>';
-						trinetix_render_media_field( 'trinetix_settings[hero_video_mobile_id]', (int) $settings['hero_video_mobile_id'], '', 'video', 'hero_video_mobile_id' );
-						echo '</td></tr>';
-						echo '<tr><th>' . esc_html__( 'Hero poster image', 'trinetix' ) . '</th><td>';
-						trinetix_render_media_field( 'trinetix_settings[hero_poster_id]', (int) $settings['hero_poster_id'], '', 'image', 'hero_poster_id' );
-						echo '</td></tr>';
-						trinetix_settings_field_text( 'hero_playback_rate', __( 'Playback rate (e.g. 1 or 0.9)', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'hero_capabilities_json', __( 'Capability cards JSON (optional advanced)', 'trinetix' ), $settings );
-						break;
-					case 'homepage':
-						trinetix_settings_field_textarea( 'intro_heading', __( 'Intro heading', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'intro_content', __( 'Intro content (optional HTML paragraphs as plain text lines)', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'intro_cta_text', __( 'Intro CTA text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'intro_cta_url', __( 'Intro CTA URL', 'trinetix' ), $settings );
-						echo '<tr><th>' . esc_html__( 'Intro video card image', 'trinetix' ) . '</th><td>';
-						trinetix_render_media_field( 'trinetix_settings[intro_video_image_id]', (int) $settings['intro_video_image_id'], '', 'image', 'intro_video_image_id' );
-						echo '</td></tr>';
-						trinetix_settings_field_textarea( 'intro_video_label', __( 'Intro video label', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'intro_video_url', __( 'Intro video URL', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'services_title', __( 'Services section title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'industries_title', __( 'Industries section title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'work_title', __( 'Work section title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'testimonials_title', __( 'Testimonials title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'partners_title', __( 'Partners title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'knowledge_title', __( 'Knowledge Hub title', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'knowledge_cta_text', __( 'Knowledge CTA text', 'trinetix' ), $settings );
-						trinetix_settings_field_text( 'knowledge_cta_url', __( 'Knowledge CTA URL', 'trinetix' ), $settings );
-						break;
 					case 'contact':
-						trinetix_settings_field_text( 'contact_heading', __( 'Contact heading', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'contact_copy', __( 'Contact supporting text', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'contact_email', __( 'Display email', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'contact_phone', __( 'Phone', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'contact_address', __( 'Address', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'contact_recipient', __( 'Form recipient email', 'trinetix' ), $settings );
-						trinetix_settings_field_textarea( 'contact_pills', __( 'Interest pills (one per line)', 'trinetix' ), $settings );
+						echo '<tr><td colspan="2"><p class="description">' . esc_html__( 'Contact heading, supporting text, and interest pills: edit the Home page → “4. Contact section”.', 'trinetix' ) . '</p></td></tr>';
 						break;
 					case 'social':
 						trinetix_settings_field_text( 'social_linkedin', __( 'LinkedIn URL', 'trinetix' ), $settings );
@@ -278,6 +244,7 @@ function trinetix_render_settings_page(): void {
 						trinetix_settings_field_text( 'footer_copyright', __( 'Copyright text', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'footer_privacy_url', __( 'Privacy Policy URL', 'trinetix' ), $settings );
 						trinetix_settings_field_text( 'footer_terms_url', __( 'Terms & Conditions URL', 'trinetix' ), $settings );
+						echo '<tr><td colspan="2"><p class="description">' . esc_html__( 'Footer link columns: Appearance → Menus (assign Footer menus).', 'trinetix' ) . '</p></td></tr>';
 						break;
 					case 'seo':
 						trinetix_settings_field_text( 'seo_default_title', __( 'Default SEO title fallback', 'trinetix' ), $settings );

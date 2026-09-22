@@ -523,7 +523,8 @@ button{cursor:pointer}
   .service-grid,.work-grid,.partner-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:980px){
-  .nav,.header-actions .btn,.search{display:none}
+  .nav,.header-actions .btn{display:none}
+  .header-actions .search{display:grid !important}
   .menu-toggle{display:block;margin-left:auto}
   .site-header.open .nav{
     display:flex;position:absolute;left:0;right:0;top:82px;background:#041127;
@@ -2429,3 +2430,82 @@ body.menu-open{
 .nav li{margin:0;padding:0}
 .footer-col .menu,.footer-columns .menu{list-style:none;margin:0;padding:0}
 .footer-col .menu a{display:block}
+.footer-legal{display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center}
+.footer-legal a{color:inherit;text-decoration:none}
+.footer-legal a:hover{text-decoration:underline}
+
+/* Search overlay */
+button.search{
+  cursor:pointer;
+  font:inherit;
+  padding:0;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.trinetix-search-overlay{
+  position:fixed;
+  inset:0;
+  z-index:10050;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:min(18vh,140px) 20px 40px;
+  background:rgba(4,17,39,.72);
+  backdrop-filter:blur(6px);
+}
+.trinetix-search-overlay[hidden]{display:none !important}
+.trinetix-search-overlay__panel{
+  position:relative;
+  width:min(640px,100%);
+  background:#081a33;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  padding:28px 24px 24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35);
+}
+.trinetix-search-overlay__close{
+  position:absolute;
+  top:10px;
+  right:12px;
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+.trinetix-search-overlay__form{
+  display:flex;
+  gap:12px;
+  align-items:stretch;
+  margin-top:8px;
+}
+.trinetix-search-overlay__input{
+  flex:1;
+  min-height:48px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  padding:0 16px;
+  font-size:16px;
+}
+.trinetix-search-overlay__input::placeholder{color:rgba(255,255,255,.55)}
+.trinetix-search-overlay__submit{flex-shrink:0;min-height:48px}
+body.search-open{overflow:hidden}
+@media(max-width:640px){
+  .trinetix-search-overlay__form{flex-direction:column}
+}
+
+/* Page Sections template */
+.page-sections .page-hero{padding-top:120px;padding-bottom:48px}
+.page-sections .page-hero-media{margin-bottom:28px;border-radius:16px;overflow:hidden}
+.page-sections .page-hero-media img{display:block;width:100%;height:auto}
+.page-sections .page-hero-copy h1{margin:0 0 12px;font-size:clamp(2rem,4vw,3.2rem)}
+.page-sections .page-hero-copy p{margin:0;max-width:42rem;opacity:.85}
+.page-sections-content .entry-content > *:first-child{margin-top:0}
+
+

@@ -39,6 +39,11 @@ function trinetix_maybe_seed_demo_content(): void {
 
 	update_option( 'trinetix_initial_content_seeded', 1 );
 	flush_rewrite_rules( false );
+
+	if ( function_exists( 'trinetix_maybe_migrate_home_page_meta' ) ) {
+		delete_option( 'trinetix_home_meta_migrated' );
+		trinetix_maybe_migrate_home_page_meta();
+	}
 }
 add_action( 'after_switch_theme', 'trinetix_maybe_seed_demo_content' );
 
@@ -50,7 +55,7 @@ function trinetix_seed_pages_and_reading(): void {
 		'Home',
 		'',
 		array(
-			'post_content' => '<!-- Front page content is rendered by front-page.php -->',
+			'post_content' => function_exists( 'trinetix_home_page_editor_guide' ) ? trinetix_home_page_editor_guide() : '<!-- Homepage sections -->',
 		)
 	);
 

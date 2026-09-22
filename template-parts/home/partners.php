@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title_raw = (string) trinetix_get_setting( 'partners_title', 'Our Partner Ecosystem' );
+$title_raw = (string) trinetix_home_setting( 'partners_title', 'Our Partner Ecosystem' );
 list( $title_main, $title_accent ) = trinetix_split_accent_title( $title_raw );
 
 $query = trinetix_ordered_query( 'partner' );

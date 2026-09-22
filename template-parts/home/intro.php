@@ -10,13 +10,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$heading     = (string) trinetix_get_setting( 'intro_heading', 'AI creates opportunity. We make sure it creates business value.' );
-$content     = (string) trinetix_get_setting( 'intro_content', '' );
-$cta_text    = (string) trinetix_get_setting( 'intro_cta_text', 'Explore Our Capabilities' );
-$cta_url     = (string) trinetix_get_setting( 'intro_cta_url', '#services' );
-$video_label = (string) trinetix_get_setting( 'intro_video_label', "From strategy\nto measurable outcomes" );
-$video_url   = (string) trinetix_get_setting( 'intro_video_url', '' );
-$image_id    = (int) trinetix_get_setting( 'intro_video_image_id', 0 );
+$heading     = (string) trinetix_home_setting( 'intro_heading', 'AI creates opportunity. We make sure it creates business value.' );
+$content     = (string) trinetix_home_setting( 'intro_content', '' );
+$cta_text    = (string) trinetix_home_setting( 'intro_cta_text', 'Explore Our Capabilities' );
+$cta_url     = (string) trinetix_home_setting( 'intro_cta_url', '#services' );
+$video_label = (string) trinetix_home_setting( 'intro_video_label', "From strategy\nto measurable outcomes" );
+$video_url   = (string) trinetix_home_setting( 'intro_video_url', '' );
+$image_id    = (int) trinetix_home_setting( 'intro_video_image_id', 0 );
 $image_url   = trinetix_image_url(
 	$image_id,
 	'large',
