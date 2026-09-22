@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 concurrency:
@@ -27,44 +26,85 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - name: PHP syntax validation
+      - name: Validate PHP syntax
         shell: bash
         run: |
           set -e
-          echo "Checking PHP syntax..."
+
+          echo "========================================"
+          echo "Validating PHP files"
+          echo "========================================"
+
           find . -type f -name "*.php" -print0 | xargs -0 -n1 php -l
-          echo "PHP syntax validation passed."
+
+          echo "PHP validation completed successfully."
 
       - name: Configure SSH
         shell: bash
         run: |
           set -e
 
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          echo "========================================"
+          echo "Configuring SSH"
+          echo "========================================"
 
-          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
 
-          printf '%s\n' "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+          echo "Decoding Base64 SSH private key..."
+
+          printf '%s' "${{ secrets.VPS_SSH_KEY_B64 }}" \
+            | base64 --decode \
+            > "$HOME/.ssh/id_ed25519"
+
+          chmod 600 "$HOME/.ssh/id_ed25519"
+
+          printf '%s\n' "${{ secrets.VPS_KNOWN_HOSTS }}" \
+            > "$HOME/.ssh/known_hosts"
+
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          echo "Validating SSH private key..."
+
+          ssh-keygen -y \
+            -f "$HOME/.ssh/id_ed25519" \
+            > /dev/null
+
+          echo "SSH private key is valid."
 
       - name: Test SSH connection
         shell: bash
         run: |
+          set -e
+
+          echo "========================================"
+          echo "Testing SSH connection"
+          echo "========================================"
+
           ssh \
-            -i ~/.ssh/id_ed25519 \
+            -i "$HOME/.ssh/id_ed25519" \
             -p "${{ secrets.VPS_PORT }}" \
             -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=10 \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "echo 'SSH connection successful'"
+            "echo 'SSH connection successful'; whoami"
 
-      - name: Deploy theme
+      - name: Deploy WordPress theme
         shell: bash
         run: |
+          set -e
+
+          echo "========================================"
+          echo "Deploying Trinetix WordPress Theme"
+          echo "========================================"
+
           ssh \
-            -i ~/.ssh/id_ed25519 \
+            -i "$HOME/.ssh/id_ed25519" \
             -p "${{ secrets.VPS_PORT }}" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=10 \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" << 'EOF'
 
           set -e
@@ -72,31 +112,50 @@ jobs:
           THEME_DIR="/var/www/trinetix-consultancy-llc/wp-content/themes/trinetix-consultancy-llc"
 
           echo "========================================"
-          echo "Starting Trinetix deployment"
+          echo "Starting deployment on VPS"
           echo "========================================"
+
+          if [ ! -d "$THEME_DIR" ]; then
+            echo "ERROR: Theme directory does not exist:"
+            echo "$THEME_DIR"
+            exit 1
+          fi
 
           cd "$THEME_DIR"
 
           echo "Current commit:"
-          git log -1 --oneline
+          git log -1 --oneline || true
 
-          echo "Fetching latest code..."
+          echo "Checking repository status..."
+          git status --short
+
+          echo "Fetching origin/main..."
           git fetch origin main
 
-          echo "Switching to main..."
+          echo "Switching to main branch..."
           git checkout main
 
-          echo "Pulling latest commit..."
+          echo "Pulling latest code..."
           git pull --ff-only origin main
 
-          echo "Running PHP syntax validation on server..."
+          echo "========================================"
+          echo "Running PHP validation on VPS"
+          echo "========================================"
+
           find . -type f -name "*.php" -print0 | xargs -0 -n1 php -l
 
-          echo "New deployed commit:"
-          git log -1 --oneline
-
           echo "========================================"
-          echo "Deployment successful"
+          echo "Deployment completed"
+          echo "Latest commit:"
+          git log -1 --oneline
           echo "========================================"
 
           EOF
+
+      - name: Deployment success
+        if: success()
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "Trinetix deployment completed successfully."
+          echo "========================================"
