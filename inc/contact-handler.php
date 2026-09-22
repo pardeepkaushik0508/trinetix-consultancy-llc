@@ -232,7 +232,6 @@ function trinetix_render_contact_submission_meta_box( WP_Post $post ): void {
 		'email'      => __( 'Email', 'trinetix' ),
 		'phone'      => __( 'Phone', 'trinetix' ),
 		'company'    => __( 'Company', 'trinetix' ),
-		'interest'   => __( 'Interest', 'trinetix' ),
 		'message'    => __( 'Message', 'trinetix' ),
 		'ip'         => __( 'IP address', 'trinetix' ),
 	);
