@@ -1,6 +1,6 @@
 /**
  * Trinetix — contact form AJAX
- * Expects window.trinetixContact = { ajaxUrl, nonce, action?, successMessage?, errorMessage? }
+ * Expects window.trinetixContact = { ajaxUrl, nonce, action?, i18n?, successMessage?, errorMessage? }
  */
 (function () {
   'use strict';
@@ -17,13 +17,22 @@
     return window.trinetixContact || {};
   }
 
+  function i18n(key, fallback) {
+    var c = cfg();
+    if (c.i18n && c.i18n[key]) return c.i18n[key];
+    if (key === 'success' && c.successMessage) return c.successMessage;
+    if (key === 'error' && c.errorMessage) return c.errorMessage;
+    if (key === 'pending' && c.pendingMessage) return c.pendingMessage;
+    return fallback;
+  }
+
   function findForm() {
     return (
       document.getElementById('trinetixContactForm') ||
       document.getElementById('trinetix-contact-form') ||
       document.querySelector('form.trinetix-contact-form') ||
+      document.querySelector('form.form') ||
       document.querySelector('.contact form') ||
-      document.querySelector('section.contact form') ||
       document.querySelector('#contact form')
     );
   }
@@ -45,6 +54,10 @@
     el.textContent = message || '';
     el.classList.remove('is-success', 'is-error', 'is-pending');
     if (type) el.classList.add('is-' + type);
+    if (message) {
+      el.hidden = false;
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   function serializeForm(form) {
@@ -63,9 +76,8 @@
 
   onReady(function () {
     var form = findForm();
-    if (!form) return;
+    if (!form || form.tagName !== 'FORM') return;
 
-    // Demo inline handlers from static HTML should not fire
     form.removeAttribute('onsubmit');
 
     var status = ensureStatus(form);
@@ -76,7 +88,7 @@
 
       var c = cfg();
       if (!c.ajaxUrl) {
-        setStatus(status, c.errorMessage || 'Contact endpoint is not configured.', 'error');
+        setStatus(status, i18n('error', 'Contact endpoint is not configured.'), 'error');
         return;
       }
 
@@ -89,38 +101,62 @@
         submitBtn.disabled = true;
         submitBtn.setAttribute('aria-busy', 'true');
       }
-      setStatus(status, c.pendingMessage || 'Sending…', 'pending');
+      setStatus(status, i18n('pending', 'Sending…'), 'pending');
 
       fetch(c.ajaxUrl, {
         method: 'POST',
         credentials: 'same-origin',
-        body: serializeForm(form)
+        body: serializeForm(form),
+        headers: {
+          Accept: 'application/json'
+        }
       })
         .then(function (res) {
-          return res.json().catch(function () {
-            return { success: res.ok };
-          });
+          return res.json().then(
+            function (json) {
+              return { ok: res.ok, payload: json };
+            },
+            function () {
+              return { ok: res.ok, payload: null };
+            }
+          );
         })
-        .then(function (payload) {
+        .then(function (result) {
+          var payload = result.payload;
           var ok = payload && (payload.success === true || payload.success === 'true');
+
           if (ok) {
             setStatus(
               status,
-              (payload.data && payload.data.message) || c.successMessage || 'Thank you — we will be in touch shortly.',
+              (payload.data && payload.data.message) ||
+                i18n('success', 'Thank you. Your message has been sent.'),
               'success'
             );
             form.reset();
+
+            // Restore default interest from first active pill (or first pill).
+            var interest = document.getElementById('trinetixInterest');
+            if (interest) {
+              var active =
+                document.querySelector('.pill.active') || document.querySelector('.pill');
+              interest.value = active
+                ? active.getAttribute('data-interest') || active.textContent.trim()
+                : '';
+            }
           } else {
             var msg =
               (payload && payload.data && payload.data.message) ||
               (payload && payload.message) ||
-              c.errorMessage ||
-              'Something went wrong. Please try again.';
+              i18n('error', 'Something went wrong. Please try again.');
             setStatus(status, msg, 'error');
           }
         })
         .catch(function () {
-          setStatus(status, c.errorMessage || 'Unable to send right now. Please try again later.', 'error');
+          setStatus(
+            status,
+            i18n('error', 'Unable to send right now. Please try again later.'),
+            'error'
+          );
         })
         .finally(function () {
           if (submitBtn) {

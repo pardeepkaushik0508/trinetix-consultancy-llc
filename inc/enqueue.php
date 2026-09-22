@@ -122,10 +122,12 @@ function trinetix_enqueue_assets(): void {
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'trinetix_contact' ),
+				'action'  => 'trinetix_contact',
 				'i18n'    => array(
 					'success' => __( 'Thank you. Your message has been sent.', 'trinetix' ),
 					'error'   => __( 'Something went wrong. Please try again.', 'trinetix' ),
 					'invalid' => __( 'Please check the form and try again.', 'trinetix' ),
+					'pending' => __( 'Sending…', 'trinetix' ),
 				),
 			)
 		);

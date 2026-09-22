@@ -2403,11 +2403,22 @@ body.menu-open{
   margin-top:14px;
   font-size:13px;
   line-height:1.5;
-  color:var(--muted);
+  color:rgba(255,255,255,.72);
+  min-height:1.25em;
 }
-.form-status.is-pending{color:var(--navy)}
-.form-status.is-success{color:#0d7a4f}
-.form-status.is-error{color:#b42318}
+.form-status.is-pending{color:#9ec5ff}
+.form-status.is-success{
+  color:#7dffa8;
+  font-weight:600;
+}
+.form-status.is-error{
+  color:#ff8f8f;
+  font-weight:600;
+}
+.contact .form-status.is-success,
+.contact .form-status.is-error{
+  padding:10px 0 2px;
+}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{
